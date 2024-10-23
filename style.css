@@ -1540,3 +1540,10 @@ a.btn-link.text-light:after {
   background-size: cover;
   transition: transform .3s ease-out;
 }
+
+
+.input-error {
+  color: red;
+  border: 2px solid red; 
+  background-color: #ffe6e6;
+}
