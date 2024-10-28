@@ -1541,6 +1541,11 @@ a.btn-link.text-light:after {
   transition: transform .3s ease-out;
 }
 
+.input-sended {
+  color: rgb(8, 212, 8);
+  border: 2px solid rgb(0, 255, 34); 
+}
+
 
 .input-error {
   color: red;
