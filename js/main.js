@@ -57,37 +57,16 @@ let getAppointments = async () => {
     const data = await response.json();
 
     if (data != null) {
-      const appointments = document.getElementById('appointments');
-      appointments.innerHTML = '';
+      const appointmentsContainer = document.getElementById('appointments');
+      appointmentsContainer.innerHTML = ''; 
+      const totalAppointments = Object.keys(data).length;
 
-      let appointmentCounts = new Map();
-
-      for (let key in data) {
-        let { appointment_date } = data[key];
-        let appointmentDate = new Date(appointment_date);
-        let dateString = appointmentDate.toLocaleDateString();
-
-        if (appointmentCounts.has(dateString)) {
-          appointmentCounts.set(dateString, appointmentCounts.get(dateString) + 1);
-        } else {
-          appointmentCounts.set(dateString, 1);
-        }
-      }
-
-      let index = 1;
-      for (let [date, count] of appointmentCounts) {
-        let row = `
-            <tr>
-              <th>${index}</th>
-              <td>${date}</td>
-              <td>${count} citas</td>
-            </tr>
-          `;
-        appointments.innerHTML += row;
-        index++;
-      }
+      appointmentsContainer.innerHTML = `
+        <p class="element-title text-capitalize my-3 text-center"><strong>${totalAppointments}</strong></p>
+      `;
     }
   } catch (error) {
+    console.error('Error al obtener las citas:', error);
     alert('Error al obtener las citas agendadas');
   }
 };
