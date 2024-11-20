@@ -3,99 +3,96 @@ const databaseURL = 'https://landing-57dbb-default-rtdb.firebaseio.com/citas.jso
 
 
 let sendData = () => {
-    const form = document.getElementById("form");
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    data['submitted_at'] = new Date().toISOString();
+  const form = document.getElementById("form");
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  data['submitted_at'] = new Date().toISOString();
 
-    fetch(databaseURL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+  fetch(databaseURL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.statusText}`);
+      }
+      return response.json();
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(() => {
-            getAppointments();
-            form.reset();
-        })
-        .catch(error => {
-            alert('An error occurred. Please try again later.');
-        });
-};
-
-let ready = () => {
-    //console.log('DOM está listo')
-    getAppointments();
-}
-
-let loaded = () => {
-    const form = document.getElementById("form");
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        sendData();
+    .then(() => {
+      getAppointments();
+      form.reset();
+    })
+    .catch(error => {
+      alert('An error occurred. Please try again later.');
     });
 };
 
+let ready = () => {
+  //console.log('DOM está listo')
+  getAppointments();
+}
+
+let loaded = () => {
+  const form = document.getElementById("form");
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    sendData();
+  });
+};
+
 let getAppointments = async () => {
-    try {
-      const response = await fetch(databaseURL, {
-        method: 'GET'
-      });
-  
-      if (!response.ok) {
-        alert('Error al cargar las citas agendadas');
-        return;
-      }
-  
-      const data = await response.json();
-  
-      if (data != null) {
-        const appointments = document.getElementById('appointments');
-        appointments.innerHTML = '';  // Limpiar tabla antes de mostrar nueva información
-  
-        // Creamos un mapa para contar las citas por fecha
-        let appointmentCounts = new Map();
-  
-        for (let key in data) {
-          let { appointment_date } = data[key];
-          let appointmentDate = new Date(appointment_date);
-          let dateString = appointmentDate.toLocaleDateString();  // Formato de la fecha (día/mes/año)
-  
-          // Si la fecha ya está en el mapa, incrementamos el contador
-          if (appointmentCounts.has(dateString)) {
-            appointmentCounts.set(dateString, appointmentCounts.get(dateString) + 1);
-          } else {
-            appointmentCounts.set(dateString, 1);
-          }
+  try {
+    const response = await fetch(databaseURL, {
+      method: 'GET'
+    });
+
+    if (!response.ok) {
+      alert('Error al cargar las citas agendadas');
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data != null) {
+      const appointments = document.getElementById('appointments');
+      appointments.innerHTML = '';
+
+      let appointmentCounts = new Map();
+
+      for (let key in data) {
+        let { appointment_date } = data[key];
+        let appointmentDate = new Date(appointment_date);
+        let dateString = appointmentDate.toLocaleDateString();
+
+        if (appointmentCounts.has(dateString)) {
+          appointmentCounts.set(dateString, appointmentCounts.get(dateString) + 1);
+        } else {
+          appointmentCounts.set(dateString, 1);
         }
-  
-        // Mostrar las citas agrupadas por día
-        let index = 1;
-        for (let [date, count] of appointmentCounts) {
-          let row = `
+      }
+
+      let index = 1;
+      for (let [date, count] of appointmentCounts) {
+        let row = `
             <tr>
               <th>${index}</th>
               <td>${date}</td>
               <td>${count} citas</td>
             </tr>
           `;
-          appointments.innerHTML += row;
-          index++;
-        }
+        appointments.innerHTML += row;
+        index++;
       }
-    } catch (error) {
-      alert('Error al obtener las citas agendadas');
     }
-  };
-  
-  // Llama a la función cuando se cargue la página
-  window.addEventListener("DOMContentLoaded", getAppointments);  
+  } catch (error) {
+    alert('Error al obtener las citas agendadas');
+  }
+};
+
+
+window.addEventListener("DOMContentLoaded", getAppointments);
 window.addEventListener("DOMContentLoaded", ready);
 window.addEventListener("load", loaded)
